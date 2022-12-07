@@ -4,9 +4,11 @@ import Navbar from '../Pages/Shared/Navbar';
 
 const LoginLayout = () => {
     return (
-        <div>
+        <div className='min-h-screen'>
             <Navbar></Navbar>
-            <Outlet></Outlet>
+            <div className='flex justify-center items-center mt-5'>
+                <Outlet></Outlet>
+            </div>
         </div>
     );
 };
