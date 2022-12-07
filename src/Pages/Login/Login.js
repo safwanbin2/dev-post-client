@@ -26,7 +26,8 @@ const Login = () => {
                 const user = result.user;
                 const newUser = {
                     name: user.displayName,
-                    email: user.email
+                    email: user.email,
+                    img: user.photoURL
                 }
                 saveUser(newUser);
                 console.log(user)

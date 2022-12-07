@@ -7,23 +7,37 @@ import { AuthContext } from '../../Contexts/AuthProvider/AuthProvider';
 const Signup = () => {
     const { createUser, logInWithGoogle, updateUser } = useContext(AuthContext);
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const imgBB_key = "ee207df4d4ece17d8fc4767557525c84";
+
     const handleSignUp = (data) => {
-        createUser(data.email, data.password)
-            .then(result => {
-                const user = result.user;
-                update(data.name);
-                console.log(user)
-                const newUser = {
-                    name: data.name,
-                    email: user.email,
-                }
-                saveUser(newUser);
-                toast.success('Account Created Successfully')
+        const image = data.img[0];
+        const formData = new FormData();
+        formData.append("image", image);
+
+        fetch(`https://api.imgbb.com/1/upload?key=${imgBB_key}`, {
+            method: "POST",
+            body: formData
+        })
+            .then(imgData => {
+                createUser(data.email, data.password)
+                    .then(result => {
+                        const user = result.user;
+                        update(data.name);
+                        console.log(user)
+                        const newUser = {
+                            name: data.name,
+                            email: user.email,
+                            img: imgData.url
+                        }
+                        saveUser(newUser);
+                        toast.success('Account Created Successfully')
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        toast.error(error.message)
+                    })
             })
-            .catch(error => {
-                console.log(error)
-                toast.error(error.message)
-            })
+            .catch(error => console.log(error))
     }
 
     const handleGoogle = () => {
@@ -32,7 +46,8 @@ const Signup = () => {
                 const user = result.user;
                 const newUser = {
                     name: user.displayName,
-                    email: user.email
+                    email: user.email,
+                    img: user.photoURL
                 }
                 saveUser(newUser);
                 console.log(user)
@@ -44,8 +59,8 @@ const Signup = () => {
             })
     }
 
-    const update = (name) => {
-        updateUser(name)
+    const update = (name, img) => {
+        updateUser(name, img)
             .then(() => { })
             .catch(error => console.error(error))
     }
@@ -80,15 +95,15 @@ const Signup = () => {
                     })} type="emai" name='email' placeholder="email" className="w-full px-4 py-3 rounded-md dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:dark:border-blue-400" />
                     {errors.email && <p className='text-xs text-red-500'>{errors.email.message}</p>}
                 </div>
-                {/* <fieldset className="w-full space-y-1 dark:text-gray-100">
+                <fieldset className="w-full space-y-1 dark:text-gray-100">
                     <label className="block text-sm font-medium">Attachments</label>
                     <div className="flex">
                         <input {...register('img', {
-                            required: "image is required"
-                        })} type="file" name="files" className="px-1 py-2 w-full border-2 border-dashed rounded-md dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800" />
+                            required: "img is required"
+                        })} type="file" className="px-1 py-2 w-full border-2 border-dashed rounded-md dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800" />
                         {errors.img && <p className='text-xs text-red-500'>{errors.img.message}</p>}
                     </div>
-                </fieldset> */}
+                </fieldset>
                 <div className="space-y-1 text-sm">
                     <label className="block dark:text-gray-400">Password</label>
                     <input {...register('password', {
